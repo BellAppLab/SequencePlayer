@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		65289F771DBF96BA004E3D9F /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65289F761DBF96BA004E3D9F /* Player.swift */; };
-		65289F781DBF96BA004E3D9F /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65289F761DBF96BA004E3D9F /* Player.swift */; };
+		65289F771DBF96BA004E3D9F /* SequencePlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65289F761DBF96BA004E3D9F /* SequencePlayer.swift */; };
+		65289F781DBF96BA004E3D9F /* SequencePlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65289F761DBF96BA004E3D9F /* SequencePlayer.swift */; };
 		657FCCCC1DBA1928009FD766 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657FCCCB1DBA1928009FD766 /* AppDelegate.swift */; };
 		657FCCCE1DBA1928009FD766 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 657FCCCD1DBA1928009FD766 /* ViewController.swift */; };
 		657FCCD11DBA1928009FD766 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 657FCCCF1DBA1928009FD766 /* Main.storyboard */; };
@@ -29,7 +29,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		65289F761DBF96BA004E3D9F /* Player.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
+		65289F761DBF96BA004E3D9F /* SequencePlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SequencePlayer.swift; sourceTree = "<group>"; };
 		657FCCC81DBA1928009FD766 /* Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		657FCCCB1DBA1928009FD766 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		657FCCCD1DBA1928009FD766 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -66,7 +66,7 @@
 		65289F751DBF96BA004E3D9F /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				65289F761DBF96BA004E3D9F /* Player.swift */,
+				65289F761DBF96BA004E3D9F /* SequencePlayer.swift */,
 			);
 			name = Source;
 			path = ../Source;
@@ -227,7 +227,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				657FCCCE1DBA1928009FD766 /* ViewController.swift in Sources */,
-				65289F771DBF96BA004E3D9F /* Player.swift in Sources */,
+				65289F771DBF96BA004E3D9F /* SequencePlayer.swift in Sources */,
 				657FCCCC1DBA1928009FD766 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -236,7 +236,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				65289F781DBF96BA004E3D9F /* Player.swift in Sources */,
+				65289F781DBF96BA004E3D9F /* SequencePlayer.swift in Sources */,
 				657FCCE11DBA1928009FD766 /* ExampleTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
