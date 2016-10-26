@@ -3,26 +3,26 @@ import AVFoundation
 
 
 //MARK: Consts
-private var playerContext = 0
+private var sequencePlayerContext = 0
 
 
 //MARK: - Delegate and Data Source
-protocol PlayerDelegate: class {
-    func playerStateDidChange(_ player: Player)
-    func playerDidEnd(_ player: Player)
+protocol SequencePlayerDelegate: class {
+    func sequencePlayerStateDidChange(_ player: SequencePlayer)
+    func sequencePlayerDidEnd(_ player: SequencePlayer)
 }
 
 
-@objc protocol PlayerDataSource: class {
-    func numberOfItemsInPlayer(_ player: Player) -> Int
-    func player(_ player: Player, itemURLAtIndex index: Int) -> URL
-    @objc optional func playerView(forPlayer player: Player) -> PlayerView
+@objc protocol SequencePlayerDataSource: class {
+    func numberOfItemsInSequencePlayer(_ player: SequencePlayer) -> Int
+    func sequencePlayer(_ player: SequencePlayer, itemURLAtIndex index: Int) -> URL
+    @objc optional func sequencePlayerView(forSequencePlayer player: SequencePlayer) -> SequencePlayerView
 }
 
 
 //MARK: - Player Controls
 //MARK: -
-extension Player
+extension SequencePlayer
 {
     func play(atIndex index: Int? = nil) {
         guard self.state != .playing else { return }
@@ -30,8 +30,8 @@ extension Player
         var didChangeIndex = false
         
         if let i = index {
-            guard i > -1 && i < self.dataSource.numberOfItemsInPlayer(self) else {
-                fatalError("Player index out of bounds... Index: \(index)")
+            guard i > -1 && i < self.dataSource.numberOfItemsInSequencePlayer(self) else {
+                fatalError("Sequence Player index out of bounds... Index: \(index)")
             }
             self.currentIndex = i
             didChangeIndex = true
@@ -46,7 +46,7 @@ extension Player
             self.player = AVQueuePlayer()
         }
         
-        self.dataSource.playerView?(forPlayer: self).player = self.player
+        self.dataSource.sequencePlayerView?(forSequencePlayer: self).player = self.player
         
         if didChangeIndex {
             self.player?.pause()
@@ -67,7 +67,7 @@ extension Player
     }
     
     func next() {
-        guard self.dataSource.numberOfItemsInPlayer(self) > self.currentIndex + 1 else { self.reload(); return }
+        guard self.dataSource.numberOfItemsInSequencePlayer(self) > self.currentIndex + 1 else { self.reload(); return }
         self.play(atIndex: self.currentIndex + 1)
     }
     
@@ -87,7 +87,7 @@ extension Player
 
 //MARK: - Main Implementation
 //MARK: -
-class Player: NSObject
+class SequencePlayer: NSObject
 {
     //MARK:
     enum State: Int, CustomStringConvertible
@@ -130,7 +130,7 @@ class Player: NSObject
                 self.isBackgroundTaskActive = true
                 self.isAudioSessionActive = true
             }
-            self.delegate?.playerStateDidChange(self)
+            self.delegate?.sequencePlayerStateDidChange(self)
         }
     }
     
@@ -148,17 +148,17 @@ class Player: NSObject
         self.playerItems.forEach { (item) in
             item.removeObserver(self,
                                 forKeyPath: #keyPath(AVPlayerItem.status),
-                                context: &playerContext)
+                                context: &sequencePlayerContext)
         }
     }
     
-    init(withDataSource dataSource: PlayerDataSource, andDelegate delegate: PlayerDelegate? = nil) {
+    init(withDataSource dataSource: SequencePlayerDataSource, andDelegate delegate: SequencePlayerDelegate? = nil) {
         self.dataSource = dataSource
         self.delegate = delegate
     }
     
-    private(set) weak var dataSource: PlayerDataSource!
-    private(set) weak var delegate: PlayerDelegate?
+    private(set) weak var dataSource: SequencePlayerDataSource!
+    private(set) weak var delegate: SequencePlayerDelegate?
     
     fileprivate var hasSetUp = false
     
@@ -173,7 +173,7 @@ class Player: NSObject
         self.playerItems.forEach { (item) in
             item.removeObserver(self,
                                 forKeyPath: #keyPath(AVPlayerItem.status),
-                                context: &playerContext)
+                                context: &sequencePlayerContext)
         }
         self.playerItems = []
         self.player?.removeAllItems()
@@ -199,7 +199,7 @@ class Player: NSObject
                 if oldValue == NSNotFound {
                     return true
                 }
-                return abs(currentIndex - oldValue) >= Player.numberOfItemsToPrefetch
+                return abs(currentIndex - oldValue) >= SequencePlayer.numberOfItemsToPrefetch
             }
             
             if shouldStartLoading() {
@@ -332,21 +332,21 @@ class Player: NSObject
     //MARK: - Downloading
     fileprivate lazy var downloadQueue: OperationQueue = {
         let result = OperationQueue()
-        result.name = "PlayerQueue"
+        result.name = "SequencePlayerQueue"
         result.maxConcurrentOperationCount = 1
         return result
     }()
     
     fileprivate lazy var fileQueue: OperationQueue = {
         let result = OperationQueue()
-        result.name = "PlayerFileQueue"
+        result.name = "SequencePlayerFileQueue"
         result.maxConcurrentOperationCount = 1
         return result
     }()
 
     
     fileprivate(set) lazy var urlSession: URLSession = {
-        let configuration = URLSessionConfiguration.background(withIdentifier: "Player")
+        let configuration = URLSessionConfiguration.background(withIdentifier: "SequencePlayer")
         configuration.requestCachePolicy = .returnCacheDataElseLoad
         configuration.networkServiceType = .video
         let result = URLSession(configuration: configuration,
@@ -361,8 +361,8 @@ class Player: NSObject
     fileprivate lazy var playerItems = [AVPlayerItem]()
     
     @objc fileprivate func itemDidPlayToEnd(_ notification: Notification) {
-        guard self.currentIndex + 1 < self.dataSource.numberOfItemsInPlayer(self) else {
-            self.delegate?.playerDidEnd(self)
+        guard self.currentIndex + 1 < self.dataSource.numberOfItemsInSequencePlayer(self) else {
+            self.delegate?.sequencePlayerDidEnd(self)
             self.reload()
             return
         }
@@ -372,7 +372,7 @@ class Player: NSObject
     
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         // Only handle observations for the playerItemContext
-        guard context == &playerContext else {
+        guard context == &sequencePlayerContext else {
             super.observeValue(forKeyPath: keyPath,
                                of: object,
                                change: change,
@@ -413,18 +413,18 @@ class Player: NSObject
 
 //MARK: - Downloading
 //MARK: -
-fileprivate extension Player
+fileprivate extension SequencePlayer
 {
     var documentsURL: URL? {
         let bundleId = Bundle.main.bundleIdentifier ?? "com.bellapplab"
-        return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).last?.appendingPathComponent("\(bundleId).Player").standardizedFileURL
+        return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).last?.appendingPathComponent("\(bundleId).SequencePlayer").standardizedFileURL
     }
     
     func prefetch() {
-        guard self.currentIndex != NSNotFound else { fatalError("Player: We need to set the current index before prefetching!") }
+        guard self.currentIndex != NSNotFound else { fatalError("Sequence Player: We need to set the current index before prefetching!") }
         guard let documentsURL = self.documentsURL, let dataSource = self.dataSource else { return }
         let currentIndex = self.currentIndex
-        let total = self.dataSource.numberOfItemsInPlayer(self)
+        let total = self.dataSource.numberOfItemsInSequencePlayer(self)
         let manager = FileManager.default
         
         func setUpCacheFolder() {
@@ -434,7 +434,7 @@ fileprivate extension Player
                 do {
                     try manager.createDirectory(at: documentsURL, withIntermediateDirectories: true, attributes: nil)
                 } catch {
-                    fatalError("Player couldn't not create its root folder... \(error)")
+                    fatalError("Sequence Player couldn't not create its root folder... \(error)")
                 }
             }
             
@@ -442,7 +442,7 @@ fileprivate extension Player
                 let files = try manager.contentsOfDirectory(at: documentsURL,
                                                             includingPropertiesForKeys: [.contentAccessDateKey],
                                                             options: [.skipsPackageDescendants, .skipsSubdirectoryDescendants, .skipsHiddenFiles])
-                let cacheDate = Date(timeIntervalSinceNow: -1 * Player.cacheAge)
+                let cacheDate = Date(timeIntervalSinceNow: -1 * SequencePlayer.cacheAge)
                 for file in files {
                     if let date = try file.resourceValues(forKeys: [.contentAccessDateKey]).contentAccessDate {
                         if date.timeIntervalSince(cacheDate) <= 0 {
@@ -451,7 +451,7 @@ fileprivate extension Player
                     }
                 }
             } catch {
-                fatalError("Player: Something went wrong while enumerating files... \(error)")
+                fatalError("Sequence Player: Something went wrong while enumerating files... \(error)")
             }
             
             self.hasSetUp = true
@@ -484,8 +484,8 @@ fileprivate extension Player
             var i = 0
             var operations = [Operation]()
             
-            while i < Player.numberOfItemsToPrefetch && currentIndex + i < total {
-                let remoteURL = dataSource.player(self!, itemURLAtIndex: currentIndex + i)
+            while i < SequencePlayer.numberOfItemsToPrefetch && currentIndex + i < total {
+                let remoteURL = dataSource.sequencePlayer(self!, itemURLAtIndex: currentIndex + i)
                 let localURL = documentsURL.appendingPathComponent(remoteURL.lastPathComponent)
                 
                 if !isAlreadyDownloading(remoteURL) && !manager.fileExists(atPath: localURL.path) {
@@ -512,16 +512,16 @@ fileprivate extension Player
         item.addObserver(self,
                          forKeyPath: #keyPath(AVPlayerItem.status),
                          options: [.new],
-                         context: &playerContext)
+                         context: &sequencePlayerContext)
         NotificationCenter.default.addObserver(self,
-                                               selector: #selector(Player.itemDidPlayToEnd(_:)),
+                                               selector: #selector(SequencePlayer.itemDidPlayToEnd(_:)),
                                                name: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
                                                object: item)
     }
 }
 
 //MARK: URL Session Data Delegate
-extension Player: URLSessionDataDelegate, URLSessionDownloadDelegate
+extension SequencePlayer: URLSessionDataDelegate, URLSessionDownloadDelegate
 {
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, willCacheResponse proposedResponse: CachedURLResponse, completionHandler: @escaping (CachedURLResponse?) -> Void) {
         guard let response = proposedResponse.response as? HTTPURLResponse, let url = response.url, var headers = response.allHeaderFields as? [String: String] else { return }
@@ -573,7 +573,7 @@ extension Player: URLSessionDataDelegate, URLSessionDownloadDelegate
     
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         if let error = error {
-            dLog("Player Download error: \(error)")
+            dLog("Sequence Player Download error: \(error)")
         }
     }
 }
@@ -581,7 +581,7 @@ extension Player: URLSessionDataDelegate, URLSessionDownloadDelegate
 
 //MARK: - Player View
 //MARK: -
-class PlayerView: UIView
+class SequencePlayerView: UIView
 {
     var player: AVPlayer? {
         get {

@@ -10,9 +10,9 @@ import UIKit
 import AVFoundation
 
 
-class ViewController: UIViewController, PlayerDataSource, PlayerDelegate {
+class ViewController: UIViewController, SequencePlayerDataSource, SequencePlayerDelegate {
     
-    var player: Player!
+    var player: SequencePlayer!
     
     lazy var urls: [URL] = {
         var result = [URL]()
@@ -29,14 +29,14 @@ class ViewController: UIViewController, PlayerDataSource, PlayerDelegate {
         return result
     }()
     
-    @IBOutlet weak var playerView: PlayerView!
+    @IBOutlet weak var playerView: SequencePlayerView!
     @IBOutlet weak var spinningThing: UIActivityIndicatorView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.player = Player(withDataSource: self,
-                             andDelegate: self)
+        self.player = SequencePlayer(withDataSource: self,
+                                     andDelegate: self)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -46,7 +46,7 @@ class ViewController: UIViewController, PlayerDataSource, PlayerDelegate {
     }
     
     //MARK: Player Delegate
-    func playerStateDidChange(_ player: Player) {
+    func sequencePlayerStateDidChange(_ player: SequencePlayer) {
         switch player.state {
         case .loading:
             self.spinningThing.startAnimating()
@@ -55,20 +55,20 @@ class ViewController: UIViewController, PlayerDataSource, PlayerDelegate {
         }
     }
     
-    func playerDidEnd(_ player: Player) {
+    func sequencePlayerDidEnd(_ player: SequencePlayer) {
         //Noop
     }
     
     //MARK: Player Data Source
-    func numberOfItemsInPlayer(_ player: Player) -> Int {
+    func numberOfItemsInSequencePlayer(_ player: SequencePlayer) -> Int {
         return self.urls.count
     }
     
-    func player(_ player: Player, itemURLAtIndex index: Int) -> URL {
+    func sequencePlayer(_ player: SequencePlayer, itemURLAtIndex index: Int) -> URL {
         return self.urls[index]
     }
     
-    func playerView(forPlayer player: Player) -> PlayerView {
+    func sequencePlayerView(forSequencePlayer player: SequencePlayer) -> SequencePlayerView {
         return self.playerView
     }
 }
