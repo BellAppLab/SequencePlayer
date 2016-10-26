@@ -1,33 +1,67 @@
 # Player
 
-A high performance player built around AVFoundation.
+Play a series of media files in sequence with no lags on iOS.
 
 _v0.1.0_
 
 ## Usage
 
-![Screenshots/Screenshot.png](Screenshots/Screenshot.png)
+```swift
+class ViewController: UIViewController, SequencePlayerDataSource, SequencePlayerDelegate {
 
-### Step 1:
+    var player: SequencePlayer!
 
-ctrl + drag to your favorite layout constraint
+    lazy var urls: [URL] = {
+        ...
+    }()
 
-### Step 2: 
+    @IBOutlet weak var spinningThing: UIActivityIndicatorView!
 
-Set your view controller's `handlesKeyboard` option to 'on'
+    override func viewDidLoad() {
+        super.viewDidLoad()
 
-### Step 3:
+        self.player = SequencePlayer(withDataSource: self,
+                                        andDelegate: self)
+    }
 
-**Get on with your life**
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
 
-======
+        self.player.play()
+    }
 
-**Please note** that the Simulator (iPhone 6s Plus / iOS 9.1 / 13B137) may not send the appropriate `UIKeyboardWillShowNotification`s. Pressing `cmd+K` while running on the Simulator may help. Nonetheless the Example app has been tested on a device running iOS 9.1 (13B143) and works. 
+    //MARK: Player Delegate
+    func sequencePlayerStateDidChange(_ player: SequencePlayer) {
+        switch player.state {
+        case .loading:
+            self.spinningThing.startAnimating()
+        default:
+            self.spinningThing.stopAnimating()
+        }
+    }
 
-**Also please note** that you may get the following messages on the console (which don't affect the library in any way):
+    func sequencePlayerDidEnd(_ player: SequencePlayer) {
+        
+    }
 
-_BSMachError: (os/kern) invalid capability (20)
-_BSMachError: (os/kern) invalid name (15)
+    //MARK: Player Data Source
+    func numberOfItemsInSequencePlayer(_ player: SequencePlayer) -> Int {
+        return self.urls.count
+    }
+
+    func sequencePlayer(_ player: SequencePlayer, itemURLAtIndex index: Int) -> URL {
+        return self.urls[index]
+    }
+
+    //Use this is your dealing with videos
+    
+    @IBOutlet weak var playerView: SequencePlayerView!
+
+    func sequencePlayerView(forSequencePlayer player: SequencePlayer) -> SequencePlayerView {
+        return self.playerView
+    }
+}
+```
 
 ## Requirements
 
@@ -50,10 +84,10 @@ To install Keyboard using git submodules:
 
 ```
 cd toYourProjectsFolder
-git submodule add -b submodule --name Player https://github.com/BellAppLab/Player.git
+git submodule add -b submodule --name SequencePlayer https://github.com/BellAppLab/SequencePlayer.git
 ```
 
-Then, navigate to the new Player folder and drag the `Source` folder into your Xcode project.
+Then, navigate to the new SequencePlayer folder and drag the `Source` folder into your Xcode project.
 
 ## Author
 

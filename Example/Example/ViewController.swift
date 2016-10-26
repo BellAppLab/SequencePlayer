@@ -1,13 +1,4 @@
-//
-//  ViewController.swift
-//  Example
-//
-//  Created by André Abou Chami Campana on 21/10/2016.
-//  Copyright © 2016 Bell App Lab. All rights reserved.
-//
-
 import UIKit
-import AVFoundation
 
 
 class ViewController: UIViewController, SequencePlayerDataSource, SequencePlayerDelegate {
