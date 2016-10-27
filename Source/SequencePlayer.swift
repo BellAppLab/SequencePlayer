@@ -528,7 +528,7 @@ extension SequencePlayer: URLSessionDataDelegate, URLSessionDownloadDelegate
         
         var cachedResponse: CachedURLResponse
         if response.allHeaderFields["Cache-Control"] == nil {
-            headers["Cache-Control"] = "max-age=604800"
+            headers["Cache-Control"] = "max-age=\(SequencePlayer.cacheAge)"
             
             if let newResponse = HTTPURLResponse(url: url,
                                               statusCode: response.statusCode,
@@ -551,8 +551,6 @@ extension SequencePlayer: URLSessionDataDelegate, URLSessionDownloadDelegate
     
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
         guard let data = try? Data(contentsOf: location), let documentsURL = self.documentsURL, let fileName = downloadTask.originalRequest?.url?.lastPathComponent else { return }
-        
-        print("Did finish downloading item \(fileName)")
         
         let manager = FileManager.default
         
