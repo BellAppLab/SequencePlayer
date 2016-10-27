@@ -7,11 +7,9 @@ class ViewController: UIViewController, SequencePlayerDataSource, SequencePlayer
     
     lazy var urls: [URL] = {
         var result = [URL]()
-        ["http://az764616.vo.msecnd.net/videos/269_j1.mp4",
-         "http://az764616.vo.msecnd.net/videos/269_c1.mp4",
-         "http://az764616.vo.msecnd.net/videos/269_g1.mp4",
-         "http://az764616.vo.msecnd.net/videos/269_c2.mp4",
-         "http://az764616.vo.msecnd.net/videos/269_g2.mp4"].forEach
+        ["http://media0.giphy.com/media/Wqhdoubttqizu/giphy.mp4",
+         "http://media0.giphy.com/media/3UvKSHiEspIKQ/200w.mp4",
+         "http://media0.giphy.com/media/mfmLlxkQn6eTS/200.mp4"].forEach
         { string in
             if let url = URL(string: string) {
                 result.append(url)
